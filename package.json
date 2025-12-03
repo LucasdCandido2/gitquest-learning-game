@@ -1,0 +1,35 @@
+{
+  "name": "gitquest-learning-game",
+  "version": "1.0.0",
+  "description": "Bem-vindo ao **GitQuest**! Este não é apenas um projeto, é um exemplo vivo de como construir software de forma profissional, colaborativa e organizada.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasdCandido2/gitquest-learning-game.git"
+  },
+  "keywords": [
+    "github",
+    "learning",
+    "game",
+    "nodejs",
+    "react",
+    "git",
+    "best-practices"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LucasdCandido2/gitquest-learning-game/issues"
+  },
+  "homepage": "https://github.com/LucasdCandido2/gitquest-learning-game#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
