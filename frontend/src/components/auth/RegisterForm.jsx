@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 
 function RegisterForm() {
     const [formData, setFormData] = useState({
@@ -6,6 +7,8 @@ function RegisterForm() {
         email: '',
         password: '',
     });
+
+    const { register, loading, error } = useAuth();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -15,22 +18,30 @@ function RegisterForm() {
         }))
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Dados do formulario:', formData);
-
+        try {
+            await register(formData);
+            console.log('Registrado com sucesso!');
+        } catch (err) {
+            console.error('Falha no registro:', err);
+        }
     };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg rounded-lg">
                 <h3 className="text-2xl font-bold text-center text-gray-800">Registrar no GitQuest</h3>
+                {/* Exibe mensagem de erro, se houver*/}
+                {error && <div className="mt-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
+
                 <form className="mt-4" onSubmit={handleSubmit}>
                     <div>
                         <label className="block" htmlFor="name">Nome</label>
                         <input 
                             id="name"
                             placeholder="Seu nome"
+                            name='name'
                             value={formData.name}
                             onChange={handleChange}
                             className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" 
@@ -43,6 +54,7 @@ function RegisterForm() {
                         <input 
                             id="email"
                             placeholder="Seu email"
+                            name='email'
                             value={formData.email}
                             onChange={handleChange}
                             className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" 
@@ -55,6 +67,7 @@ function RegisterForm() {
                         <input
                             id="password"
                             placeholder="Sua senha"
+                            name='password'
                             value={formData.password}
                             onChange={handleChange}
                             className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" 
@@ -63,8 +76,12 @@ function RegisterForm() {
                             />
                     </div>
                     <div className="flex flex-col items-center mt-4">
-                        <button className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
-                            Registrar
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+                        >
+                            {loading ? 'Registrando...' : 'Registrar'}
                         </button>
                         <a className="text-sm text-blue-600 hover:underline" href="#">Já tem uma conta? Login</a>
                     </div>
