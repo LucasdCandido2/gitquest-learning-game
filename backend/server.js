@@ -1,11 +1,33 @@
+require('dotenv').config();
+
 const express = require('express');
+
+const db = require('./src/models');
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+
+app.use(express.json());
+
+const authRoutes = require('./src/routes/auth');
+app.use('/api/auth', authRoutes);
 
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ message: 'Backend ir running!' });
+    res.status(200).json({ message: 'Backend is running!' });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Backend server is running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await db.sequelize.sync({ force: false });
+        console.log('🗄️ Database synchronized successfully!');
+
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Beckend server is running on http://localhost:${PORT}`);
+            console.log(`🌐 Accessible from the network at http://0.0.0.0:${PORT}`)
+        });
+    } catch (error) {
+        console.error('❌ Unable to start the server:', error);
+    }
+};
+
+startServer();
