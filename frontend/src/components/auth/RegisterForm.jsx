@@ -83,7 +83,7 @@ function RegisterForm() {
                         >
                             {loading ? 'Registrando...' : 'Registrar'}
                         </button>
-                        <a className="text-sm text-blue-600 hover:underline" href="#">Já tem uma conta? Login</a>
+                        <a className="text-sm text-blue-600 hover:underline mt-6" href="/login">Já tem uma conta? Login</a>
                     </div>
                 </form>
             </div>
