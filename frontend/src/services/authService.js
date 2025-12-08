@@ -16,6 +16,19 @@ const register = async (userData) => {
     }
 };
 
+const login = async (credentiails) => {
+    try {
+        const response = await api.post('/auth/login', credentiails);
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.data) {
+            throw new Error(error.response.data.error || 'Erro ao fazer login.');
+        }
+        throw new Error('Não foi possivel conectar ao servidor.');
+    }
+};
+
 export const authService = {
     register,
+    login,
 };

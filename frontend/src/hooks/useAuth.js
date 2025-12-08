@@ -23,10 +23,28 @@ export const useAuth = () => {
         }
     };
 
+    const login = async (credentials) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await authService.login(credentials);
+            setUser(response.user);
+            console.log('Login feito com sucesso:', response);
+            return response;
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return {
         user,
         loading,
         error,
         register,
+        login,
     };
 };
