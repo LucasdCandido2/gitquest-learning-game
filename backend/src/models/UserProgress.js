@@ -43,6 +43,7 @@ module.exports = (sequelize) => {
         sequelize,
         modelName: 'UserProgress',
         tableName: 'user_progresses',
+        timestamps: true,
     });
 
     return UserProgress;

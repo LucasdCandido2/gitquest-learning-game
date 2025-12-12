@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const express = require('express');
-
 const db = require('./src/models');
 
 const app = express();
@@ -11,10 +10,13 @@ app.use(express.json());
 
 const authRoutes = require('./src/routes/auth');
 const lessonsRoutes = require('./src/routes/lessons');
-app.use('/api/auth', authRoutes);
-app.use('/api/lessons', lessonsRoutes);
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Backend is running!' });
+});
+app.use('/auth', authRoutes);
+app.use('/lessons', lessonsRoutes);
 
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.status(200).json({ message: 'Backend is running!' });
 });
 

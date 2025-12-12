@@ -12,14 +12,14 @@ const registerUser = async ({ name, email, password }) =>{
     const newUser = await User.create({ name, email, password });
 
     const token = jwt.sign(
-        { id: newUser.id, email: newUser.email },
+        { id: newUser.id, email: newUser.email, name: newUser.name },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
 
     const { password: _, ...userWhithoutPassword } = newUser.toJSON();
 
-    return { user: userWhithoutPassword, token };
+    return { user: newUser, token };
 };
 
 const loginUser = async ({ email, password }) => {
@@ -36,13 +36,13 @@ const loginUser = async ({ email, password }) => {
     }
 
     const token = jwt.sign(
-        { id: user.id, email: user.email },
+        { id: user.id, email: user.email, name: user.name },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
 
     const { password: _, ...userWhithoutPassword } = user.toJSON();
-    return { user: userWhithoutPassword, token };
+    return { user, token };
 }
 
 module.exports = {

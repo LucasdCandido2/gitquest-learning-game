@@ -1,8 +1,8 @@
-const { Lesson } = require('../models');
+const lessonService = require('../services/lessonService');
 
 const getAllLessons = async (req, res) => {
     try {
-        const lessons = await Lesson.findAll({
+        const lessons = await lessonService.findAll({
             order: [['order', 'ASC']],
             attributes: { exclude: ['content'] },
         });
