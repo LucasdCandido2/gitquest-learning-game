@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 function RegisterForm() {
     const [formData, setFormData] = useState({
@@ -8,7 +8,7 @@ function RegisterForm() {
         password: '',
     });
 
-    const { register, loading, error } = useAuth();
+    const { register, loading, error } = useAuthContext();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
