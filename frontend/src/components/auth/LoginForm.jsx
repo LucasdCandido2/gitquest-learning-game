@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 function LoginForm() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -22,6 +24,7 @@ function LoginForm() {
         try {
             await login(formData);
             console.log('Login successful');
+            navigate('/dashboard');
         } catch (err) {
             console.error('Faha no login:', err);
         }

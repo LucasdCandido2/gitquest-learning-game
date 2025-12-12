@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 function RegisterForm() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -23,6 +25,7 @@ function RegisterForm() {
         try {
             await register(formData);
             console.log('Registrado com sucesso!');
+            navigate('/dashboard');
         } catch (err) {
             console.error('Falha no registro:', err);
         }
