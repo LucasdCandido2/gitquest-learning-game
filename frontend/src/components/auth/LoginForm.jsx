@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 function LoginForm() {
     const [formData, setFormData] = useState({
@@ -7,7 +7,7 @@ function LoginForm() {
         password: '',
     });
 
-    const { login, loading, error } = useAuth();
+    const { login, loading, error } = useAuthContext();
 
     const handleChange = (e) => {
         const  { name, value } = e.target;
