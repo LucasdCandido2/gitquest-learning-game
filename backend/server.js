@@ -10,7 +10,9 @@ const PORT = process.env.PORT || 3001;
 app.use(express.json());
 
 const authRoutes = require('./src/routes/auth');
+const lessonsRoutes = require('./src/routes/lessons');
 app.use('/api/auth', authRoutes);
+app.use('/api/lessons', lessonsRoutes);
 
 app.get('/api/health', (req, res) => {
     res.status(200).json({ message: 'Backend is running!' });
@@ -23,7 +25,7 @@ const startServer = async () => {
 
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 Beckend server is running on http://localhost:${PORT}`);
-            console.log(`🌐 Accessible from the network at http://0.0.0.0:${PORT}`)
+            console.log(`🌐 Accessible from the network at http://0.0.0.0:${PORT}`);
         });
     } catch (error) {
         console.error('❌ Unable to start the server:', error);
