@@ -12,4 +12,14 @@ const sequelize = new Sequelize({
   logging: false, // Desativa os logs SQL no console para ficar mais limpo
 });
 
-module.exports = sequelize;
+module.exports = {
+  development: {
+    dialect: 'sqlite',
+    storage: process.env.DB_PATH || './database.sqlite',
+    logging: false,
+  },
+  test: {
+    dialect: 'sqlite',
+    storage: ':memory',
+  },
+};

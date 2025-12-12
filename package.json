@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/LucasdCandido2/gitquest-learning-game#readme",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "sequelize-cli": "^6.6.3"
   }
 }
