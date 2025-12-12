@@ -17,7 +17,7 @@ const authMiddleware = (req, res, next) => {
             return res.status(401).json({ error: 'Token mal formatado' });
         }
 
-        jwt.verify(token, process.env.JWT_SECRET, || 'seu_secret_aqui', (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SECRET || 'seu_secret_aqui', (err, decoded) => {
             if (err) {
                 return res.status(401).json({ error: 'Token invalido' });
             }
