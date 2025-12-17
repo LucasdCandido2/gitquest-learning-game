@@ -1,25 +1,35 @@
-// backend/src/config/database.js
-
 const { Sequelize } = require('sequelize');
+const path = require('path');
+require('dotenv').config();
 
-// O caminho para o arquivo do banco de dados está no nosso .env
-const dbPath = process.env.DB_PATH || './database.sqlite';
+const storagePath = path.join(__dirname, '..', '..', 'database.sqlite');
 
-// Criamos a instância do Sequelize
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: dbPath,
-  logging: false, // Desativa os logs SQL no console para ficar mais limpo
-});
-
-module.exports = {
+const config = {
   development: {
     dialect: 'sqlite',
-    storage: process.env.DB_PATH || './database.sqlite',
+    storage: storagePath,
     logging: false,
   },
   test: {
     dialect: 'sqlite',
-    storage: ':memory',
+    storage: ':memory:',
+    logging: false,
   },
+  production: {
+    dialect: 'sqlite',
+    storage: storagePath,
+    logging: false,
+  },
+};
+
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: storagePath,
+  logging: false,
+});
+
+module.exports = {
+  ...config,
+  sequelize,
+  Sequelize,
 };

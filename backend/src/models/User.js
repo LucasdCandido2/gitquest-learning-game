@@ -1,73 +1,52 @@
-// backend/src/models/User.js
-
 const { Model, DataTypes } = require('sequelize');
-const bcrypt = require('bcryptjs');
 
 module.exports = (sequelize) => {
   class User extends Model {
-    // Método estático para associar modelos (será útil no futuro)
     static associate(models) {
-      // Exemplo: User.hasMany(models.LessonProgress);
+      User.hasMany(models.UserProgress, {
+        foreignKey: 'userId',
+        as: 'progress'
+      });
     }
   }
 
   User.init({
-    // O ID será gerado automaticamente pelo Sequelize
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
+      autoIncrement: true
     },
-    name: {
+    username: {
       type: DataTypes.STRING,
-      allowNull: false, // O nome é obrigatório
+      allowNull: false,
+      unique: true,
       validate: {
-        notEmpty: {
-          msg: 'O nome não pode ser vazio.',
-        },
-        len: {
-          args: [3, 100],
-          msg: 'O nome deve ter entre 3 e 100 caracteres.',
-        },
-      },
+        notEmpty: true,
+        len: [3, 50]
+      }
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: {
-        msg: 'Este e-mail já está em uso.',
-      },
+      unique: true,
       validate: {
-        isEmail: {
-          msg: 'Formato de e-mail inválido.',
-        },
-      },
+        isEmail: true,
+        notEmpty: true
+      }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: {
-          msg: 'A senha não pode ser vazia.',
-        },
-        len: {
-          args: [6, 100],
-          msg: 'A senha deve ter no mínimo 6 caracteres.',
-        },
-      },
-    },
+        notEmpty: true,
+        len: [6, 100]
+      }
+    }
   }, {
-    sequelize, // Passa a instância do Sequelize
+    sequelize,
     modelName: 'User',
-    tableName: 'users', // Nome da tabela no banco de dados
-    // Hooks: Funções que são executadas em determinados eventos do ciclo de vida do modelo
-    hooks: {
-      // Antes de criar um usuário, vamos hashear a senha
-      beforeCreate: async (user) => {
-        const salt = await bcrypt.genSalt();
-        user.password = await bcrypt.hash(user.password, salt);
-      },
-    },
+    tableName: 'users',
+    timestamps: true
   });
 
   return User;

@@ -1,28 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-const { Sequelize } = require('sequelize');
-const config = require('../config/database');
+const { sequelize, Sequelize } = require('../config/database');
 
-const sequelize = new Sequelize(config.development);
+const initUser = require('./User');
+const initLesson = require('./Lesson');
+const initUserProgress = require('./UserProgress');
 
 const db = {};
 
-fs.readdirSync(__dirname)
-    .filter(file => {
-        return (file.indexOf('.') !== 0) && (file !== path.basename(__filename)) && (file.slice(-3)  === '.js');
-    })
-    .forEach(file => {
-        const model = require(path.join(__dirname, file))(sequelize, require('sequelize').DataTypes);
-        db[model.name] = model;
-    });
-
-Object.keys(db).forEach(modelName => {
-    if (db[modelName].associate) {
-        db[modelName].associate(db);
-    }
-});
-
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+db.User = initUser(sequelize);
+db.Lesson = initLesson(sequelize);
+db.UserProgress = initUserProgress(sequelize);
+
+Object.values(db)
+  .filter((model) => model && typeof model.associate === 'function')
+  .forEach((model) => {
+    model.associate(db);
+  });
 
 module.exports = db;
