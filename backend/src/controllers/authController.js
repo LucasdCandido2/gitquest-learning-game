@@ -1,35 +1,66 @@
 const authService = require('../services/authService');
 
-const register = async (req, res) => {
-    const { name, email, password } = req.body;
-     if (!name || !email || !password) {
-        return res.status(400).json({ error: "Nome, e-mail e senha são obrigatorios." });
-     }
+exports.register = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
 
-     try {
-        const newUser = await authService.registerUser({ name, email, password });
-        return res.status(201).json(newUser);
-     } catch (error) {
-        return res.status(400).json({ error: error.message });
-     }
+    if (!username || !email || !password) {
+      return res.status(400).json({ 
+        error: 'Username, email and password are required.' 
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        error: 'Invalid email format.' 
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 6 characters long.' 
+      });
+    }
+
+    const result = await authService.register(username, email, password);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    if (error.message.includes('already exists') || error.message.includes('já existe')) {
+      return res.status(409).json({ error: error.message });
+    }
+    
+    res.status(500).json({ 
+      error: 'Error registering user.',
+      details: error.message 
+    });
+  }
 };
 
-const login = async (req, res) => {
-   const { email, password } = req.body;
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-   if (!email || !password) {
-      return res.status(400).json({ error: 'E-mail e senha são obrigatorios.' });
-   }
+    if (!email || !password) {
+      return res.status(400).json({ 
+        error: 'Email and password are required.' 
+      });
+    }
 
-   try {
-      const loggedInUser = await authService.loginUser({ email, password });
-      return res.status(200).json(loggedInUser);
-   } catch (error) {
+    const result = await authService.login(email, password);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Login error:', error);
+    
+    if (error.message.includes('not found') || error.message.includes('Invalid')) {
       return res.status(401).json({ error: error.message });
-   }
-};
-
-module.exports = {
-    register,
-    login,
+    }
+    
+    res.status(500).json({ 
+      error: 'Error logging in.',
+      details: error.message 
+    });
+  }
 };

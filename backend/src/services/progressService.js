@@ -1,79 +1,104 @@
-const { UserProgress, Lesson, User } = require('../models');
+const { UserProgress, Lesson, sequelize } = require('../models');
 
-const progressService = {
-    async saveProgress(userId, lessonId, data) {
-        const { completed, score } = data;
+exports.saveProgress = async (userId, lessonId, completed, score) => {
+  try {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) {
+      throw new Error('Lesson not found.');
+    }
 
-        const lesson = await Lesson.findByPk(lessonId);
-        if (!lesson) {
-            throw new Error('Lição não encontrada');
-        }
+    const now = new Date();
 
-        let progress = await UserProgress.findOne({
-            where: { userId, lessonId }
-        });
-
-        if (progress) {
-            progress.completed = completed !== undefined ? completed : progress.completed;
-            progress.score = score !== undefined ? score : progress.score;
-            await progress.save();
-        } else {
-            progress = await UserProgress.create({
-                userId,
-                lessonId,
-                completed: completed || false,
-                score: score || 0
-            });
-        }
-
-        return progress;
-    },
-
-    async getProgressByLesson(userId, lessonId) {
-        const progress = await UserProgress.findOne({
-            where: { userId, lessonId },
-            include: [
-                {
-                    model: Lesson,
-                    attributes: ['id', 'title', 'slug', 'order']
-                }
-            ]
-        });
-
-        return progress;
-    },
-
-    async getAllProgress(userId) {
-        const progress = await UserProgress.findAll({
-            where: { userId },
-            include: [
-                {
-                    model: Lesson,
-                    attributes: ['id', 'title', 'slug', 'description', 'order', 'published']
-                }
-            ],
-        });
-
-        return progress;
-    },async getUserStats(userId) {
-    const allProgress = await UserProgress.findAll({
-      where: { userId }
+    const [progress, created] = await UserProgress.findOrCreate({
+      where: { 
+        userId: userId, 
+        lessonId: lessonId 
+      },
+      defaults: {
+        completed: !!completed,
+        score: score || 0,
+        completedAt: completed ? now : null
+      }
     });
 
-    const totalLessons = await Lesson.count({ where: { published: true } });
-    const completedLessons = allProgress.filter(p => p.completed).length;
-    const totalScore = allProgress.reduce((sum, p) => sum + (p.score || 0), 0);
-    const averageScore = allProgress.length > 0 ? totalScore / allProgress.length : 0;
+    if (!created) {
+      progress.completed = !!completed;
+      progress.score = score || 0;
+      progress.completedAt = completed ? now : progress.completedAt;
+      await progress.save();
+    }
 
-    return {
-      totalLessons,
-      completedLessons,
-      inProgress: allProgress.length - completedLessons,
-      totalScore,
-      averageScore: Math.round(averageScore * 100) / 100,
-      completionRate: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
-    };
+    return progress;
+  } catch (error) {
+    console.error('Error in saveProgress service:', error);
+    throw error;
   }
 };
 
-module.exports = progressService;
+exports.getProgressByLesson = async (userId, lessonId) => {
+  try {
+    const progress = await UserProgress.findOne({
+      where: {
+        userId: userId,
+        lessonId: lessonId
+      }
+    });
+
+    return progress;
+  } catch (error) {
+    console.error('Error in getProgressByLesson service:', error);
+    throw error;
+  }
+};
+
+exports.getAllProgress = async (userId) => {
+  try {
+    const progressList = await UserProgress.findAll({
+      where: { userId: userId },
+      include: [
+        {
+          model: Lesson,
+          as: 'lesson',
+          attributes: ['id', 'title', 'slug', 'description']
+        }
+      ],
+      order: [['lessonId', 'ASC']]
+    });
+
+    return progressList;
+  } catch (error) {
+    console.error('Error in getAllProgress service:', error);
+    throw error;
+  }
+};
+
+exports.getStats = async (userId) => {
+  try {
+    const allProgress = await UserProgress.findAll({ 
+      where: { userId: userId } 
+    });
+
+    const totalLessons = await Lesson.count();
+
+    const completed = allProgress.filter(p => p.completed);
+    const totalCompleted = completed.length;
+
+    const avgScore = completed.length > 0
+      ? Math.round(completed.reduce((sum, p) => sum + (p.score || 0), 0) / completed.length)
+      : 0;
+
+    const completionRate = totalLessons > 0
+      ? parseFloat((totalCompleted / totalLessons).toFixed(2))
+      : 0;
+
+    return {
+      totalLessons,
+      completedLessons: totalCompleted,
+      avgScore,
+      completionRate
+    };
+  } catch (error) {
+    console.error('Error in getStats service:', error);
+    throw error;
+  }
+};

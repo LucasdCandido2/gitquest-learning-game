@@ -1,18 +1,12 @@
-// backend/src/models/User.js
-
 const { Model, DataTypes } = require('sequelize');
-const bcrypt = require('bcryptjs');
 
 module.exports = (sequelize) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.LessonProgress, { foreignKey: 'userId' });
-    }
-
-    toJSON() {
-      const values = { ...this.get() };
-      delete values.password;
-      return values;
+      User.hasMany(models.UserProgress, {
+        foreignKey: 'userId',
+        as: 'progress'
+      });
     }
   }
 
@@ -20,57 +14,39 @@ module.exports = (sequelize) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
+      autoIncrement: true
     },
-    name: {
+    username: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
-        notEmpty: {
-          msg: 'O nome não pode ser vazio.',
-        },
-        len: {
-          args: [3, 255],
-          msg: 'O nome deve ter entre 3 e 255 caracteres.',
-        },
-      },
+        notEmpty: true,
+        len: [3, 50]
+      }
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: {
-        msg: 'Este e-mail já está em uso.',
-      },
+      unique: true,
       validate: {
-        isEmail: {
-          msg: 'Formato de e-mail inválido.',
-        },
-      },
+        isEmail: true,
+        notEmpty: true
+      }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: {
-          msg: 'A senha não pode ser vazia.',
-        },
-        len: {
-          args: [6, 255],
-          msg: 'A senha deve ter no mínimo 6 caracteres.',
-        },
-      },
-    },
+        notEmpty: true,
+        len: [6, 100]
+      }
+    }
   }, {
     sequelize,
     modelName: 'User',
     tableName: 'users',
-    timestamps: true,
-    hooks: {
-      beforeCreate: async (user) => {
-        const salt = await bcrypt.genSalt();
-        user.password = await bcrypt.hash(user.password, salt);
-      },
-    },
+    timestamps: true
   });
 
   return User;
