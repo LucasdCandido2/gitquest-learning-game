@@ -1,3 +1,4 @@
+// backend/src/models/Lesson.js
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -32,6 +33,11 @@ module.exports = (sequelize) => {
     content: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    difficulty: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'beginner'
     }
   }, {
     sequelize,

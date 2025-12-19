@@ -1,14 +1,17 @@
-const { UserProgress, Lesson, sequelize } = require('../models');
+// backend/src/services/progressService.js
+const { UserProgress, Lesson, User } = require('../models');
 
-exports.saveProgress = async (userId, lessonId, completed, score) => {
+exports.saveProgress = async (userId, lessonId, { completed, score }) => {
   try {
+    // Verifica se a lição existe
     const lesson = await Lesson.findByPk(lessonId);
     if (!lesson) {
-      throw new Error('Lesson not found.');
+      throw new Error('Lição não encontrada.');
     }
 
     const now = new Date();
 
+    // Busca ou cria o progresso
     const [progress, created] = await UserProgress.findOrCreate({
       where: { 
         userId: userId, 
@@ -21,6 +24,7 @@ exports.saveProgress = async (userId, lessonId, completed, score) => {
       }
     });
 
+    // Se já existia, atualiza
     if (!created) {
       progress.completed = !!completed;
       progress.score = score || 0;
@@ -41,7 +45,14 @@ exports.getProgressByLesson = async (userId, lessonId) => {
       where: {
         userId: userId,
         lessonId: lessonId
-      }
+      },
+      include: [
+        {
+          model: Lesson,
+          as: 'lesson',
+          attributes: ['id', 'title', 'slug', 'description']
+        }
+      ]
     });
 
     return progress;
@@ -74,21 +85,26 @@ exports.getAllProgress = async (userId) => {
 
 exports.getStats = async (userId) => {
   try {
+    // Busca todo o progresso do usuário
     const allProgress = await UserProgress.findAll({ 
       where: { userId: userId } 
     });
 
+    // Conta total de lições disponíveis
     const totalLessons = await Lesson.count();
 
+    // Filtra apenas as lições completadas
     const completed = allProgress.filter(p => p.completed);
     const totalCompleted = completed.length;
 
+    // Calcula média de score (apenas das completadas)
     const avgScore = completed.length > 0
       ? Math.round(completed.reduce((sum, p) => sum + (p.score || 0), 0) / completed.length)
       : 0;
 
+    // Calcula taxa de conclusão
     const completionRate = totalLessons > 0
-      ? parseFloat((totalCompleted / totalLessons).toFixed(2))
+      ? parseFloat(((totalCompleted / totalLessons) * 100).toFixed(2))
       : 0;
 
     return {

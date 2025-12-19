@@ -1,4 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
+const bcrypt = require('bcryptjs');
 
 module.exports = (sequelize) => {
   class User extends Model {
@@ -7,6 +8,10 @@ module.exports = (sequelize) => {
         foreignKey: 'userId',
         as: 'progress'
       });
+    }
+
+    async comparePassword(senha) {
+      return await bcrypt.compare(senha, this.senha);
     }
   }
 
@@ -19,10 +24,9 @@ module.exports = (sequelize) => {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         notEmpty: true,
-        len: [3, 50]
+        len: [3, 100]
       }
     },
     email: {
@@ -46,7 +50,8 @@ module.exports = (sequelize) => {
     sequelize,
     modelName: 'User',
     tableName: 'users',
-    timestamps: true
+    timestamps: true,
+    hooks: {}
   });
 
   return User;

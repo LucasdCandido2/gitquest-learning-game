@@ -1,3 +1,4 @@
+// backend/migrations/20251212170000-create-lessons.js
 'use strict';
 
 module.exports = {
@@ -7,49 +8,42 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-        allowNull: false,
+        allowNull: false
       },
       title: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
+        type: Sequelize.STRING,
+        allowNull: false
       },
       slug: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        unique: true
       },
       description: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true
       },
       content: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: false
       },
-      order: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
-      isPublished: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
+      difficulty: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: 'beginner'
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        allowNull: false
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
+        allowNull: false
+      }
     });
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('lessons');
-  },
+  }
 };

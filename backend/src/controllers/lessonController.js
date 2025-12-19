@@ -5,9 +5,9 @@ exports.getAllLessons = async (req, res) => {
     const lessons = await lessonService.getAllLessons();
     res.status(200).json(lessons);
   } catch (error) {
-    console.error('Get all lessons error:', error);
+    console.error('Erro ao buscar lições:', error);
     res.status(500).json({ 
-      error: 'Error fetching lessons.',
+      error: 'Erro ao buscar lições',
       details: error.message 
     });
   }
@@ -19,14 +19,14 @@ exports.getLessonById = async (req, res) => {
     const lesson = await lessonService.getLessonById(id);
     res.status(200).json(lesson);
   } catch (error) {
-    console.error('Get lesson by ID error:', error);
+    console.error('Erro ao buscar lição:', error);
     
-    if (error.message.includes('not found')) {
+    if (error.message.includes('não encontrada')) {
       return res.status(404).json({ error: error.message });
     }
     
     res.status(500).json({ 
-      error: 'Error fetching lesson.',
+      error: 'Erro ao buscar lição',
       details: error.message 
     });
   }
@@ -38,14 +38,14 @@ exports.getLessonBySlug = async (req, res) => {
     const lesson = await lessonService.getLessonBySlug(slug);
     res.status(200).json(lesson);
   } catch (error) {
-    console.error('Get lesson by slug error:', error);
+    console.error('Erro ao buscar lição:', error);
     
-    if (error.message.includes('not found')) {
+    if (error.message.includes('não encontrada')) {
       return res.status(404).json({ error: error.message });
     }
     
     res.status(500).json({ 
-      error: 'Error fetching lesson.',
+      error: 'Erro ao buscar lição',
       details: error.message 
     });
   }
