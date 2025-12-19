@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 function LoginForm() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
-        password: '',
+        senha: '',
     });
 
-    const { login, loading, error } = useAuthContext();
+    const { login, loading, error } = useAuth();
 
     const handleChange = (e) => {
         const  { name, value } = e.target;
@@ -50,12 +50,12 @@ function LoginForm() {
                         />
                     </div>
                     <div className='mt-4'>
-                        <label className='block' htmlFor="password">Senha</label>
+                        <label className='block' htmlFor="senha">Senha</label>
                         <input
-                            id='password'
-                            name='password'
+                            id='senha'
+                            name='senha'
                             placeholder='Sua senha'
-                            value={formData.password}
+                            value={formData.senha}
                             onChange={handleChange}
                             className='w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600'
                             type="password"

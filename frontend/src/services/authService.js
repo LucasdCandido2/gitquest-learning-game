@@ -1,34 +1,40 @@
-import axios from 'axios';
-
-const api = axios.create({
-    baseURL: '/api',
-});
-
-const register = async (userData) => {
-    try {
-        const response = await api.post('/auth/register', userData);
-        return response.data;
-    } catch (error) {
-        if (error.response && error.response.data) {
-            throw new Error(error.response.data.error || 'Error ao registrar usuario.');
-        }
-        throw new Error('Não foi possivel conectar ao servidor.');
-    }
-};
-
-const login = async (credentiails) => {
-    try {
-        const response = await api.post('/auth/login', credentiails);
-        return response.data;
-    } catch (error) {
-        if (error.response && error.response.data) {
-            throw new Error(error.response.data.error || 'Erro ao fazer login.');
-        }
-        throw new Error('Não foi possivel conectar ao servidor.');
-    }
-};
+import api, { handleApiError } from './api';
 
 export const authService = {
-    register,
-    login,
+  async register({ nome, email, senha }) {
+    try {
+      const response = await api.post('/auth/register', {
+        nome,
+        email,
+        senha,
+      });
+
+      if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro no authService.register:', error);
+      handleApiError(error, 'Erro ao registrar usuario.');
+    }
+  },
+
+  async login({ email, senha }) {
+    try {
+      const response = await api.post('/auth/login', {
+        email,
+        senha,
+      });
+
+      if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro no authService.login:', error);
+      handleApiError(error, 'Erro ao fazer login.');
+    }
+  },
 };

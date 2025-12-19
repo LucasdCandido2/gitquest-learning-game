@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const lessonController = require('../controllers/lessonController');
+const auth = require('../middleware/auth');
 
-router.get('/', lessonController.getAllLessons);
-router.get('/slug/:slug', lessonController.getLessonBySlug);
-router.get('/:id', lessonController.getLessonById);
+// todas as rotas de lições protegidas por auth
+router.get('/', auth, lessonController.getAllLessons);
+router.get('/:id', auth, lessonController.getLessonById);
+router.get('/slug/:slug', auth, lessonController.getLessonBySlug);
 
 module.exports = router;

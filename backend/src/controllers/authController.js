@@ -2,28 +2,28 @@ const authService = require('../services/authService');
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { nome, email, senha } = req.body;
 
-    if (!username || !email || !password) {
+    if (!nome || !email || !senha) {
       return res.status(400).json({ 
-        error: 'Username, email and password are required.' 
+        error: 'Nome, e-mail e senha são obrigatórios.' 
       });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ 
-        error: 'Invalid email format.' 
+        error: 'Formato de e-mail inválido.' 
       });
     }
 
-    if (password.length < 6) {
+    if (senha.length < 6) {
       return res.status(400).json({ 
-        error: 'Password must be at least 6 characters long.' 
+        error: 'A senha deve ter pelo menos 6 caracteres.' 
       });
     }
 
-    const result = await authService.register(username, email, password);
+    const result = await authService.register(nome, email, senha);
     res.status(201).json(result);
   } catch (error) {
     console.error('Registration error:', error);
@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
     }
     
     res.status(500).json({ 
-      error: 'Error registering user.',
+      error: 'Erro ao registrar usuário.',
       details: error.message 
     });
   }
@@ -41,25 +41,25 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, senha } = req.body;
 
-    if (!email || !password) {
+    if (!email || !senha) {
       return res.status(400).json({ 
-        error: 'Email and password are required.' 
+        error: 'E-mail e senha são obrigatórios.' 
       });
     }
 
-    const result = await authService.login(email, password);
+    const result = await authService.login(email, senha);
     res.status(200).json(result);
   } catch (error) {
     console.error('Login error:', error);
     
-    if (error.message.includes('not found') || error.message.includes('Invalid')) {
+    if (error.message.includes('not found') || error.message.includes('Invalid') || error.message.includes('não encontrado') || error.message.includes('inválida')) {
       return res.status(401).json({ error: error.message });
     }
     
     res.status(500).json({ 
-      error: 'Error logging in.',
+      error: 'Erro ao fazer login.',
       details: error.message 
     });
   }

@@ -40,12 +40,8 @@ function initUserProgress(sequelize) {
             },
             completed: {
                 type: DataTypes.BOOLEAN,
-                allowNull: true,
-                defaultValue: 0,
-                validate: {
-                    min: 0,
-                    max: 100,
-                },
+                allowNull: false,
+                defaultValue: false,
             },
             score: {
                 type: DataTypes.INTEGER,
@@ -55,6 +51,10 @@ function initUserProgress(sequelize) {
                     min: 0,
                     max: 100,
                 },
+            },
+            completedAt: {
+                type: DataTypes.DATE,
+                allowNull: true,
             },
         },
         {

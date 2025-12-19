@@ -1,111 +1,84 @@
-import React, { createContext, useContext, useReducer, useEffect, Children } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 
-const AuthContext = createContext();
-
-const authActions = {
-    LOGIN_START: 'LOGIN_START',
-    LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-    LOGIN_FAILURE: 'LOGIN_FAILURE',
-    LOGOUT: 'LOGOUT',
-    INITIALIZE_FROM_STORAGE: 'INITIALIZE_FROM_STORAGE',
-};
-
-const authReducer = (state, action) => {
-    switch (action.type) {
-        case authActions.LOGIN_START:
-            return { ...state, loading: true, error: null };
-        case authActions.LOGIN_SUCCESS:
-            return {
-                user: action.payload.user,
-                token: action.payload.token,
-                isAuthenticated: true,
-                loading: false,
-                error: null,
-            };
-        case authActions.LOGIN_FAILURE:
-            return { ...state, loading: false, error: action.payload };
-        case authActions.LOGOUT:
-            return { user: null, token: null, isAuthenticated: false, loading: false, error: null };
-        case authActions.INITIALIZE_FROM_STORAGE:
-            return { ...state, user: action.payload.user, token: action.payload.token, isAuthenticated: !!action.payload.user, loading: false };
-        default:
-            return state;
-    }
-};
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(authReducer, {
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        loading: true,
-        error: null,
-    });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
+  useEffect(() => {
+    const initializeAuth = () => {
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
 
-        if (token && user) {
-            dispatch({
-                type: authActions.INITIALIZE_FROM_STORAGE,
-                payload: { token, user: JSON.parse(user) }
-            });
-        } else {
-            dispatch({ type: authActions.INITIALIZE_FROM_STORAGE, payload: { token: null, user: null } });
-        }
-    }, []);
-    
-    const login = async (credentials) => {
-        dispatch({ type: authActions.LOGIN_START });
+      if (token && savedUser) {
         try {
-            const response = await authService.login(credentials);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
-            dispatch({ type: authActions.LOGIN_SUCCESS, payload: response });
-            return response;
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
         } catch (error) {
-            dispatch({ type: authActions.LOGIN_FAILURE, payload: error.message });
-            throw error;
+          console.error('Erro ao parsear usuário salvo:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
+      }
+
+      setLoading(false);
     };
 
-    const register = async (userData) => {
-        dispatch({ type: authActions.LOGIN_START });
-        try {
-            const response = await authService.register(userData);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user ));
-            dispatch({ type: authActions.LOGIN_SUCCESS, payload: response });
-            return response;
-        } catch (err) {
-            dispatch({ type: authActions.LOGIN_FAILURE, payload: err.message });
-            throw err;
-        }
-    };
+    initializeAuth();
+  }, []);
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        dispatch({ type: authActions.LOGOUT });
-    };
+  const register = async (dados) => {
+    const data = await authService.register(dados);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    setUser(data.user);
+    navigate('/lessons');
+  };
 
-    const value= {
-        ...state,
-        login,
-        register,
-        logout,
-    };
-    
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const login = async (dados) => {
+    const data = await authService.login(dados);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    setUser(data.user);
+    navigate('/lessons');
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    navigate('/login');
+  };
+
+  const value = {
+    user,
+    loading,
+    register,
+    login,
+    logout,
+    isAuthenticated: !!user,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuthContext = () => {
-    const context = useContext(AuthContext);
-    if (context === null) {
-        throw new Error('useAuthContext must be used within an AuthProvider');
-    }
-    return context;
-}
+// Hook customizado para usar o contexto
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
+  return context;
+};

@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const progressController = require('../controllers/progressController');
-const authMiddleware = require('../middleware/auth');
+const auth = require('../middleware/auth');
 
-router.use(authMiddleware);
-router.get('/stats', progressController.getStats);
-router.get('/', progressController.getAllProgress);
-router.post('/:lessonId', progressController.saveProgress);
-router.get('/:lessonId', progressController.getProgressByLesson);
+router.get('/stats', auth, progressController.getStats);
+router.get('/', auth, progressController.getAllProgress);
+router.get('/:lessonId', auth, progressController.getProgressByLesson);
+router.post('/:lessonId', auth, progressController.saveProgress);
 
 module.exports = router;
